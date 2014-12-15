@@ -1,0 +1,14 @@
+# IntelliJ
+.idea/
+out/
+*.iml
+
+# Go
+bin/
+pkg/
+*.o
+*.a
+*.so
+*.exe
+*.test
+*.prof
