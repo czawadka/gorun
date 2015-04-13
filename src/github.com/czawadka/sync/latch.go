@@ -2,27 +2,35 @@ package sync
 
 import (
 	"sync"
+	"sync/atomic"
+	"fmt"
 )
 
-type Latch interface {
-	Release()
+type CountDownLatch interface {
+	CountDown()
 	Await()
 }
 
-type rwMutexLatch struct {
-	rwMutex sync.RWMutex
+type rwMutexCountDownLatch struct {
+	mutext sync.RWMutex
+	count int32
 }
 
-func (l *rwMutexLatch) Release() {
-	l.rwMutex.Unlock()
+func (l *rwMutexCountDownLatch) CountDown() {
+	addResult := atomic.AddInt32(&l.count, -1)
+	if addResult == 0 {
+		fmt.Printf("mutex.unlock for result %d\n", addResult)
+		l.mutext.Unlock() // release write lock which hold all routines awaiting on read lock
+	}
 }
 
-func (l *rwMutexLatch) Await() {
-	l.rwMutex.RLock()
+func (l *rwMutexCountDownLatch) Await() {
+	l.mutext.RLock()
 }
 
-func NewLatch() Latch {
-	l := rwMutexLatch{}
-	l.rwMutex.Lock()
+func NewCountDownLatch(initialCount int32) CountDownLatch {
+	l := rwMutexCountDownLatch{}
+	l.mutext.Lock()
+	l.count = initialCount
 	return &l
 }
