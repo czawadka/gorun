@@ -17,8 +17,15 @@ func start(workerCount int) {
 
 	channel := make(chan int, workerCount)
 	closeChannel := func() {
-		fmt.Printf("Closing bbb channel\n")
-		close(channel)
+		switch err := recover().(type) {
+		case nil:
+			fmt.Printf("Closing main channel\n")
+			close(channel)
+		case error:
+			fmt.Printf("wrong panic: %v\n", err)
+		default:
+			fmt.Printf("unexpected panic value: %T(%v)\n", err, err)
+		}
 	}
 	defer closeChannel()
 
@@ -43,6 +50,10 @@ func start(workerCount int) {
 		workerId := <- channel
 		fmt.Printf("Worker %d reported\n", workerId)
 	}
+
+	close(channel)
+	close(channel)
+	panic("WTF?")
 
 	fmt.Printf("Done!\n")
 }
