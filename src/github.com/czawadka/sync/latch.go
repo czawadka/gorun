@@ -3,7 +3,6 @@ package sync
 import (
 	"sync"
 	"sync/atomic"
-	"fmt"
 )
 
 type CountDownLatch interface {
@@ -19,7 +18,6 @@ type rwMutexCountDownLatch struct {
 func (l *rwMutexCountDownLatch) CountDown() {
 	addResult := atomic.AddInt32(&l.count, -1)
 	if addResult == 0 {
-		fmt.Printf("mutex.unlock for result %d\n", addResult)
 		l.mutext.Unlock() // release write lock which hold all routines awaiting on read lock
 	}
 }

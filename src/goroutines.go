@@ -22,7 +22,7 @@ func start(workerCount int) {
 			fmt.Printf("Closing main channel\n")
 			close(channel)
 		case error:
-			fmt.Printf("wrong panic: %v\n", err)
+			fmt.Printf("panic: %v\n", err)
 		default:
 			fmt.Printf("unexpected panic value: %T(%v)\n", err, err)
 		}
